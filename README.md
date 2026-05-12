@@ -18,10 +18,22 @@ Tech: pnpm workspace · Next.js (App Router, SSR) · Prisma + SQLite · shadcn/u
 details live in [`CLAUDE.md`](./CLAUDE.md); product docs in [`PRD.md`](./PRD.md) /
 [`VISION.md`](./VISION.md) / [`ROADMAP.md`](./ROADMAP.md).
 
-## Prerequisites
+## Quick start
 
-- **Node.js >= 20**
-- **pnpm >= 9** (the repo pins `pnpm@9.15.9` via `packageManager`) — `corepack enable` will pick it up
+Needs **Node.js >= 20** and **pnpm >= 9** (`corepack enable` picks up the pinned version).
+
+```bash
+pnpm install
+cp apps/builder/.env.example  apps/builder/.env
+cp apps/customer/.env.example apps/customer/.env
+pnpm db:migrate   # creates apps/builder/prisma/dev.db
+pnpm seed         # populates the demo site (login + a published venue + sample analytics)
+pnpm dev          # Builder → http://localhost:5113 , Customer → http://localhost:5114
+```
+
+Then sign in to the Builder at http://localhost:5113/sign-in with `demo@mizrahitality.test` /
+`demo1234`, or open the public demo venue at http://localhost:5114/hotelmizrahi. The sections below
+explain each step.
 
 ## Setup
 
@@ -68,7 +80,7 @@ Starts both apps together:
 
 Override the ports with `BUILDER_PORT` / `CUSTOMER_PORT` (in the `.env` files or the environment).
 
-Quick API check (Builder must be running):
+Quick API check (Builder running + `pnpm seed` already done):
 
 ```bash
 curl http://localhost:5113/api/sites/hotelmizrahi
@@ -84,7 +96,7 @@ curl http://localhost:5113/api/sites/hotelmizrahi
 | `pnpm typecheck` | `tsc --noEmit` across all workspaces. |
 | `pnpm test` | Vitest across all workspaces. |
 | `pnpm format` | Prettier write. |
-| `pnpm db:migrate` | Apply Prisma migrations (idempotent). Schema changes go through the `update-database` workflow and are logged in `apps/builder/prisma/CHANGELOG.md`. |
+| `pnpm db:migrate` | Apply Prisma migrations (idempotent). Schema changes are logged in `apps/builder/prisma/CHANGELOG.md`. |
 | `pnpm seed` | Populate / refresh the demo data (see above). |
 
 Per-workspace: `pnpm -F builder <script>` · `pnpm -F customer <script>` ·
