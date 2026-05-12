@@ -33,7 +33,7 @@ P0 defects in the demo flow.
 | analytics-api | planned | Analytics event ingest + storage + aggregation endpoints. |
 | analytics-dashboard | planned | Owner dashboard: total visits, Book Now clicks/hovers. |
 | customer-site | planned | SSR public site at `localhost:5114/<slug>`: renders the published page, Book Now confirmation, posts analytics. |
-| demo-seed | planned | `pnpm seed` populates a ready-to-show published site. |
+| demo-seed | complete | `pnpm seed` populates a ready-to-show published site — owner `demo@mizrahitality.test` / `demo1234`, venue "Hotel Mizrahi" → `localhost:5114/hotelmizrahi`, plus sample analytics; re-runnable (scoped reset). |
 
 ---
 

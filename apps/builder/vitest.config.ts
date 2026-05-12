@@ -12,7 +12,7 @@ export default defineConfig({
   css: { postcss: { plugins: [] } },
   test: {
     environment: "node",
-    include: ["**/*.test.ts"],
+    include: ["**/*.test.ts", "**/*.test.mjs"],
     exclude: ["node_modules/**", ".next/**"],
   },
 });

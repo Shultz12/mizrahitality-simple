@@ -1,5 +1,12 @@
 # Prisma Schema Changelog
 
+## [2026-05-12] No migration — feature 9 (demo-seed)
+
+**Feature:** demo-seed (feature 9)
+**Schema change:** none.
+
+`pnpm seed` (`node prisma/seed.mjs`) is now a real, re-runnable demo seed — data only, no schema change. On each run it does a *scoped* reset (deletes only the demo owner / site / events, keyed by the demo email `demo@mizrahitality.test` + slug `hotelmizrahi`) and recreates: one `OwnerAccount` (`demo@mizrahitality.test` / `demo1234`, bcrypt cost 12 to match `SALT_ROUNDS` in `lib/auth/password.ts`), one **published** `Site` ("Hotel Mizrahi" → slug `hotelmizrahi`; `contentJson` + `publishedJson` snapshot of a venue-name header + two Rich Text blocks + one stock Image (`/stock/hotel.svg`) + a Book Now button; `isDraft: false`, `publishedAt` now), and 23 sample `AnalyticsEvent` rows (16 `visit` / 5 `book-now-hover` / 2 `book-now-click`, `createdAt` spread over the last ~week) so the owner dashboard isn't empty. No `prisma migrate` was run; `pnpm db:migrate` stays unaffected. The pure demo content lives in `prisma/seed-content.mjs` and is validated DB-free by `__tests__/seed/seed-content.test.mjs`.
+
 ## [2026-05-12] Migration: add_analytics_event
 
 **Feature:** analytics-api (feature 6)
