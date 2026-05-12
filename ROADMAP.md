@@ -8,7 +8,7 @@ analytics round-trip to the owner dashboard.
 ---
 
 ## Milestone: v1.0 — Two-product drag-and-drop hospitality site builder + SSR visitor site, end-to-end on localhost
-**Status:** planned
+**Status:** complete — all 9 features implemented; per-feature DoD met (tests + `pnpm build && pnpm typecheck && pnpm test && pnpm lint` green, docs updated). Final sign-off is the end-to-end localhost walkthrough in `plans/00-master-plan.md` §5.
 **Success Criteria:** An owner can sign up (email + password), create a site by naming the
 venue (the slug is derived from the name — spaces removed, lowercased), build a single
 landing page by dragging blocks from a "Drag into site" tray onto a canvas under a pinned
@@ -25,14 +25,14 @@ P0 defects in the demo flow.
 ### Features (build in roughly this order)
 | Feature | Status | Notes |
 |---|---|---|
-| monorepo-foundation | planned | pnpm workspace + both Next.js app skeletons + shared packages (`contracts`, configs) + Prisma/SQLite. Tech decisions live in `CLAUDE.md`. |
-| owner-auth | planned | Sign-up / sign-in (email + password); bcrypt + signed httpOnly cookie; `OwnerAccount` model. |
-| site-builder | planned | Site creation (venue name → slug). Single-page builder: pinned venue-name header + repeatable Rich Text (Tiptap), at most one Image, at most one Book Now; drag-and-drop (dnd-kit) + reorder/delete + live preview; image upload + bundled stock set; `Site` model. |
-| remove-ai-and-variants | planned | Descope: strip AI copy touch-up, the 7 audience variants, the styling-preset list, and visitor-type targeting (the demo switcher, per-gender/age analytics) from the docs + code; trim the downstream charters. |
-| published-page-api | planned | REST endpoint the Customer app fetches the published page (per slug) from. |
-| analytics-api | planned | Analytics event ingest + storage + aggregation endpoints. |
-| analytics-dashboard | planned | Owner dashboard: total visits, Book Now clicks/hovers. |
-| customer-site | planned | SSR public site at `localhost:5114/<slug>`: renders the published page, Book Now confirmation, posts analytics. |
+| monorepo-foundation | complete | pnpm workspace + both Next.js app skeletons + shared packages (`contracts`, configs) + Prisma/SQLite. Tech decisions live in `CLAUDE.md`. |
+| owner-auth | complete | Sign-up / sign-in (email + password); bcrypt + signed httpOnly cookie; `OwnerAccount` model. |
+| site-builder | complete | Site creation (venue name → slug). Single-page builder: pinned venue-name header + repeatable Rich Text (Tiptap), at most one Image, at most one Book Now; drag-and-drop (dnd-kit) + reorder/delete + live preview; image upload + bundled stock set; `Site` model. |
+| remove-ai-and-variants | complete | Descope: strip AI copy touch-up, the 7 audience variants, the styling-preset list, and visitor-type targeting (the demo switcher, per-gender/age analytics) from the docs + code; trim the downstream charters. |
+| published-page-api | complete | REST endpoint the Customer app fetches the published page (per slug) from. |
+| analytics-api | complete | Analytics event ingest + storage + aggregation endpoints. |
+| analytics-dashboard | complete | Owner dashboard: total visits, Book Now clicks/hovers. |
+| customer-site | complete | SSR public site at `localhost:5114/<slug>`: renders the published page, Book Now confirmation, posts analytics. |
 | demo-seed | complete | `pnpm seed` populates a ready-to-show published site — owner `demo@mizrahitality.test` / `demo1234`, venue "Hotel Mizrahi" → `localhost:5114/hotelmizrahi`, plus sample analytics; re-runnable (scoped reset). |
 
 ---

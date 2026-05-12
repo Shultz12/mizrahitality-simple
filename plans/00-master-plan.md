@@ -1,7 +1,7 @@
 # Master Plan — Mizrahitality Simple
 
-**Status:** active
-**Last updated:** 2026-05-12
+**Status:** complete — all 9 features `done` (see §2)
+**Last updated:** 2026-05-13
 **Owner:** shultz.devops@gmail.com
 
 > This file is the **plan-of-plans** and the only file in `plans/` until features start.
