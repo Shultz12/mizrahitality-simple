@@ -33,3 +33,16 @@ Thumbs.db
 
 # Worktrees
 .worktrees/
+
+# Uploaded images (Builder) — keep the dir, ignore its contents
+apps/builder/uploads/*
+!apps/builder/uploads/.gitkeep
+
+# SQLite database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Next.js generated type shim
+next-env.d.ts

@@ -1,0 +1,2 @@
+# Uploaded images live here at runtime (gitignored). Served by GET /uploads/<file>
+# (route handler added in the site-builder feature).

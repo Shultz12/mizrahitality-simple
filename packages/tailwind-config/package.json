@@ -1,0 +1,9 @@
+{
+  "name": "@mizrahitality/tailwind-config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./tokens.css": "./tokens.css"
+  },
+  "files": ["tokens.css"]
+}

@@ -1,0 +1,9 @@
+**/.next
+**/node_modules
+**/dist
+**/coverage
+pnpm-lock.yaml
+apps/builder/prisma/migrations
+apps/builder/prisma/dev.db
+apps/builder/public/stock
+.worktrees

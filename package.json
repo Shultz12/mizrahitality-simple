@@ -1,0 +1,36 @@
+{
+  "name": "mizrahitality-simple",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently -n builder,customer -c blue,green \"pnpm -F builder dev\" \"pnpm -F customer dev\"",
+    "build": "pnpm -r --if-present run build",
+    "lint": "pnpm -r --if-present run lint",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "test": "pnpm -r --if-present run test",
+    "format": "prettier --write .",
+    "db:migrate": "pnpm -F builder db:migrate",
+    "seed": "pnpm -F builder seed"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "@tailwindcss/oxide",
+      "esbuild",
+      "prisma",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}

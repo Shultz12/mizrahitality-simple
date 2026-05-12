@@ -1,0 +1,20 @@
+// Prisma schema for the Builder app. All changes go through the `update-database` skill.
+// See plans/00-master-plan.md §4 (cross-cutting rules).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// A venue owner's account. One owner → one site (the Site model lands in the site-builder feature).
+model OwnerAccount {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
