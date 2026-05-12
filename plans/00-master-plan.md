@@ -119,7 +119,7 @@ Build one feature at a time, in this order. Each feature assumes all earlier one
 | 5 | published-page-api | done ([plan](05-published-page-api-plan.md)) | 1, 3, 4 | 8, 12 (server side), 16 (API side), 18 | `update-database` |
 | 6 | analytics-api | done ([plan](06-analytics-api-plan.md)) | 1, 3 | 15, 18 (events side) | `update-database` |
 | 7 | analytics-dashboard | done ([plan](07-analytics-dashboard-plan.md)) | 1, 2, 6 | 9, 10 (dashboard page) | — |
-| 8 | customer-site | not-started | 1, 5, 6 | 11, 12, 14, 16, 19 | — |
+| 8 | customer-site | done ([plan](08-customer-site-plan.md)) | 1, 5, 6 | 11, 12, 14, 16, 19 | — |
 | 9 | demo-seed | not-started | 3, 5 (and 6 for sample events) | 17 (seed script) | `update-database` (only if it needs schema help) |
 
 Notes on ordering:

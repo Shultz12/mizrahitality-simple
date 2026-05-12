@@ -10,9 +10,12 @@ export default defineConfig({
   },
   // Tests never import CSS; skip loading postcss.config.mjs / Tailwind during test runs.
   css: { postcss: { plugins: [] } },
+  // tsconfig sets `jsx: "preserve"` (Next handles it in the build); for the .test.tsx SSR-render
+  // smoke tests, transform JSX here with the automatic runtime (`react/jsx-runtime`).
+  esbuild: { jsx: "automatic" },
   test: {
     environment: "node",
-    include: ["**/*.test.ts"],
+    include: ["**/*.test.ts", "**/*.test.tsx"],
     exclude: ["node_modules/**", ".next/**"],
   },
 });
