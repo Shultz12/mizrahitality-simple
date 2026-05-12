@@ -5,7 +5,7 @@ import { ANALYTICS_EVENT_TYPES } from "@mizrahitality/contracts";
 describe("customer foundation smoke", () => {
   it("falls back to the default Builder API URL when BUILDER_API_URL is unset", () => {
     // Vitest doesn't set BUILDER_API_URL, so this exercises the default branch.
-    expect(BUILDER_API_URL).toBe("http://localhost:5111");
+    expect(BUILDER_API_URL).toBe("http://localhost:5113");
   });
 
   it("exposes a configured API client", () => {

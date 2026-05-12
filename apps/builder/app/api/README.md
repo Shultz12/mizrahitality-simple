@@ -1,6 +1,6 @@
 # Builder REST API
 
-The **only** channel between the Builder app (this app, `:5111`) and the Customer app (`:5112`).
+The **only** channel between the Builder app (this app, `:5113`) and the Customer app (`:5114`).
 No authentication — a venue's **slug** identifies it (the slug is derived from the venue name at
 site creation and is frozen). All responses are a JSON envelope from `@mizrahitality/contracts`:
 
@@ -55,7 +55,7 @@ by `GET /uploads/<file>`) or `/stock/<name>.svg` (a bundled stock image). Resolv
 ### Example
 
 ```
-$ curl http://localhost:5111/api/sites/cafemizrahi
+$ curl http://localhost:5113/api/sites/cafemizrahi
 {"ok":true,"data":{"slug":"cafemizrahi","name":"Cafe Mizrahi","blocks":[
   {"id":"…","type":"rich-text","html":"<p><strong>Open daily</strong></p>"},
   {"id":"…","type":"image","imageUrl":"/uploads/3f2…​.jpg","alt":"Our patio"},
@@ -66,7 +66,7 @@ $ curl http://localhost:5111/api/sites/cafemizrahi
 ## `POST /api/events`
 
 Record one analytics event from the Customer site. **No authentication.** Called from the visitor's
-**browser** on the published page (`:5112` → `:5111`) — a cross-origin request: the endpoint sets
+**browser** on the published page (`:5114` → `:5113`) — a cross-origin request: the endpoint sets
 `Access-Control-Allow-Origin: *` (plus `Access-Control-Allow-Methods` / `Access-Control-Allow-Headers`)
 on every response and answers the `OPTIONS` preflight. **No server-side de-duplication** — every
 accepted `POST` stores one row; the Customer app emits exactly one `visit` per page load (REQ-15).
@@ -89,7 +89,7 @@ accepted `POST` stores one row; the Customer app emits exactly one `visit` per p
 ### Example
 
 ```
-$ curl -X POST http://localhost:5111/api/events -H 'content-type: application/json' -d '{"slug":"cafemizrahi","type":"visit"}'
+$ curl -X POST http://localhost:5113/api/events -H 'content-type: application/json' -d '{"slug":"cafemizrahi","type":"visit"}'
 {"ok":true,"data":{"recorded":true}}
 ```
 
@@ -113,7 +113,7 @@ Aggregated analytics for a venue. **No authentication.** Read server-side by the
 ### Example
 
 ```
-$ curl http://localhost:5111/api/sites/cafemizrahi/analytics
+$ curl http://localhost:5113/api/sites/cafemizrahi/analytics
 {"ok":true,"data":{"slug":"cafemizrahi","visits":3,"bookNowHovers":1,"bookNowClicks":0}}
 ```
 

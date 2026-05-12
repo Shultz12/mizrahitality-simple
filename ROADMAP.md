@@ -32,7 +32,7 @@ P0 defects in the demo flow.
 | published-page-api | planned | REST endpoint the Customer app fetches the published page (per slug) from. |
 | analytics-api | planned | Analytics event ingest + storage + aggregation endpoints. |
 | analytics-dashboard | planned | Owner dashboard: total visits, Book Now clicks/hovers. |
-| customer-site | planned | SSR public site at `localhost:5112/<slug>`: renders the published page, Book Now confirmation, posts analytics. |
+| customer-site | planned | SSR public site at `localhost:5114/<slug>`: renders the published page, Book Now confirmation, posts analytics. |
 | demo-seed | planned | `pnpm seed` populates a ready-to-show published site. |
 
 ---

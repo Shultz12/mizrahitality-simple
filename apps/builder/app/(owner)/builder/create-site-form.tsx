@@ -38,7 +38,7 @@ export function CreateSiteForm() {
           {slug ? (
             <>
               Your address will be:{" "}
-              <code className="rounded bg-muted px-1 py-0.5 font-mono">localhost:5112/{slug}</code>
+              <code className="rounded bg-muted px-1 py-0.5 font-mono">localhost:5114/{slug}</code>
             </>
           ) : (
             "We'll turn it into your permanent web address."

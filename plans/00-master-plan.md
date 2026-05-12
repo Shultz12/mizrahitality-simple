@@ -118,7 +118,7 @@ Build one feature at a time, in this order. Each feature assumes all earlier one
 | 4 | remove-ai-and-variants | done ([plan](04-remove-ai-and-variants-plan.md)) | 1, 3 | — (removes REQ-6, 7, 13, 20; trims 8, 9, 12, 15, 18) | — |
 | 5 | published-page-api | done ([plan](05-published-page-api-plan.md)) | 1, 3, 4 | 8, 12 (server side), 16 (API side), 18 | `update-database` |
 | 6 | analytics-api | done ([plan](06-analytics-api-plan.md)) | 1, 3 | 15, 18 (events side) | `update-database` |
-| 7 | analytics-dashboard | not-started | 1, 2, 6 | 9, 10 (dashboard page) | — |
+| 7 | analytics-dashboard | done ([plan](07-analytics-dashboard-plan.md)) | 1, 2, 6 | 9, 10 (dashboard page) | — |
 | 8 | customer-site | not-started | 1, 5, 6 | 11, 12, 14, 16, 19 | — |
 | 9 | demo-seed | not-started | 3, 5 (and 6 for sample events) | 17 (seed script) | `update-database` (only if it needs schema help) |
 
@@ -149,8 +149,8 @@ updating this file first.
 ### 1 — monorepo-foundation
 **Charter.** Stand up the pnpm-workspace monorepo and everything both apps build on, with
 no product features yet. Deliver: `pnpm-workspace.yaml` globbing `apps/*` + `packages/*`;
-`apps/builder/` (Next.js App Router, port 5111 via `scripts/dev.mjs`/`start.mjs` reading
-`BUILDER_PORT`) and `apps/customer/` (Next.js App Router, SSR, port 5112 via
+`apps/builder/` (Next.js App Router, port 5113 via `scripts/dev.mjs`/`start.mjs` reading
+`BUILDER_PORT`) and `apps/customer/` (Next.js App Router, SSR, port 5114 via
 `CUSTOMER_PORT`); `packages/contracts/` (`@mizrahitality/contracts` — raw-TS, no build:
 visitor-type vocabulary `{gender: male|female} × {age: 18-30|31-50|50+}` + the neutral
 case, analytics-event vocabulary `visit | book-now-hover | book-now-click`,
@@ -271,10 +271,10 @@ logic (feature 6), any new metrics beyond the listed three.
 ### 8 — customer-site
 **Charter.** The public, server-side-rendered visitor site (`apps/customer`). Deliver:
 `app/[slug]/page.tsx` as a Server Component that, **on each request**, calls the Builder
-REST API (via `createApiClient` with `BUILDER_API_URL`, default `http://localhost:5111`)
+REST API (via `createApiClient` with `BUILDER_API_URL`, default `http://localhost:5113`)
 for the published page and renders the returned JSON **entirely server-side** — venue name,
 ordered blocks (Rich Text sanitized HTML, the one Image by URL, the Book Now button if
-present); **routing by the slug path segment** at `localhost:5112/<slug>`; an **unknown
+present); **routing by the slug path segment** at `localhost:5114/<slug>`; an **unknown
 slug** handled gracefully and an **existing-but-unpublished slug** showing a friendly
 "coming soon" placeholder; the **Book Now** block renders as a button that on click shows a
 friendly confirmation modal/toast (no real booking/payment) and emits a `book-now-click`
@@ -319,7 +319,7 @@ seed is data only.
 - **Tests:** Vitest per workspace, moderate rigor — core logic well-tested (auth,
   analytics aggregation, the REST contract), lighter on the supplied UI; smoke tests must
   be DB-independent.
-- **Local only:** Builder :5111 (`BUILDER_PORT`), Customer :5112 (`CUSTOMER_PORT`).
+- **Local only:** Builder :5113 (`BUILDER_PORT`), Customer :5114 (`CUSTOMER_PORT`).
 - **Process:** one feature at a time, planned in Claude Code Plan mode; the feature plan
   file is the persisted artifact. No commits unless the user asks.
 - **Keep it simple:** this is a job-interview deliverable judged on functional

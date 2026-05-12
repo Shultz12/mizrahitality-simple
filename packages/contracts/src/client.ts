@@ -6,7 +6,7 @@ export interface ApiClient {
 }
 
 export interface CreateApiClientOptions {
-  /** Base URL of the Builder REST API, e.g. `http://localhost:5111`. */
+  /** Base URL of the Builder REST API, e.g. `http://localhost:5113`. */
   baseUrl: string;
 }
 

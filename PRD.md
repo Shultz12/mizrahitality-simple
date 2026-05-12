@@ -212,7 +212,7 @@ client-only render of page content); this holds for the published page and the p
   a small committed stock-image set; images served by the Builder.
 - **Tests:** Vitest per workspace; moderate rigor — core logic well-tested (auth, analytics
   math, REST contract), lighter on the supplied UI.
-- **Local-only:** runs on `localhost`; Builder :5111, Customer :5112.
+- **Local-only:** runs on `localhost`; Builder :5113, Customer :5114.
 
 ## 8. Risks & Open Questions
 **Known risks**

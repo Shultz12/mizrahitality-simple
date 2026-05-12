@@ -81,11 +81,11 @@ describe("createApiClient", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    const client = createApiClient({ baseUrl: "http://localhost:5111/" });
+    const client = createApiClient({ baseUrl: "http://localhost:5113/" });
     const result = await client.get<{ hello: string }>("/api/ping");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "http://localhost:5111/api/ping",
+      "http://localhost:5113/api/ping",
       expect.objectContaining({ method: "GET" }),
     );
     expect(result).toEqual({ ok: true, data: { hello: "world" } });
@@ -99,7 +99,7 @@ describe("createApiClient", () => {
       }),
     );
 
-    const client = createApiClient({ baseUrl: "http://localhost:5111" });
+    const client = createApiClient({ baseUrl: "http://localhost:5113" });
     const result = await client.post("/api/events", { type: "visit" });
 
     expect(result.ok).toBe(false);
@@ -118,7 +118,7 @@ describe("createApiClient", () => {
       ),
     );
 
-    const client = createApiClient({ baseUrl: "http://localhost:5111" });
+    const client = createApiClient({ baseUrl: "http://localhost:5113" });
     const result = await client.get("/api/ping");
 
     expect(result.ok).toBe(false);

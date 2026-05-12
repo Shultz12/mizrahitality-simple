@@ -1,5 +1,5 @@
 // POST /api/events — analytics ingest. No auth (the slug is the identity). Cross-origin: the Customer
-// site emits hover/click events from the visitor's browser (:5112 → :5111), and POST with
+// site emits hover/click events from the visitor's browser (:5114 → :5113), and POST with
 // content-type: application/json triggers a CORS preflight — so we answer OPTIONS and set permissive
 // CORS headers on every response. One accepted POST = one stored row; no server-side dedup (the
 // Customer app guarantees one `visit` per page load — REQ-15). Body is always a JSON envelope, even on

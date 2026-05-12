@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 import { signOutAction } from "@/lib/auth/actions";
 import { requireOwner } from "@/lib/auth/current-owner";
@@ -13,7 +14,19 @@ export default async function OwnerLayout({ children }: { children: ReactNode })
   return (
     <div className="min-h-svh">
       <header className="flex items-center justify-between border-b px-6 py-3">
-        <span className="font-semibold">Mizrahitality</span>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard" className="font-semibold">
+            Mizrahitality
+          </Link>
+          <nav className="flex items-center gap-3 text-sm text-muted-foreground">
+            <Link href="/dashboard" className="hover:text-foreground">
+              Dashboard
+            </Link>
+            <Link href="/builder" className="hover:text-foreground">
+              Site builder
+            </Link>
+          </nav>
+        </div>
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <span>{owner.email}</span>
           <form action={signOutAction}>

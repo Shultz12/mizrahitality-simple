@@ -16,7 +16,7 @@ export const metadata: Metadata = { title: "Site builder — Mizrahitality" };
 
 // Where the public Customer app serves this site. Hard-coded for the local demo; the slug is
 // what selects the site (see PRD / CLAUDE.md). Feature 8 builds that app.
-const CUSTOMER_ORIGIN = "http://localhost:5112";
+const CUSTOMER_ORIGIN = "http://localhost:5114";
 
 export default async function BuilderPage() {
   const owner = await requireOwner();
