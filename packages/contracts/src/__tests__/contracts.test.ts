@@ -1,43 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import {
-  VISITOR_TYPES,
-  GENDERS,
-  AGE_GROUPS,
-  isNeutral,
-  visitorTypeKey,
-  parseVisitorTypeKey,
-  ANALYTICS_EVENT_TYPES,
-  apiOk,
-  createApiClient,
-} from "../index";
-
-describe("visitor-type vocabulary", () => {
-  it("has exactly 7 visitor types (2 genders × 3 age groups + neutral)", () => {
-    expect(GENDERS).toHaveLength(2);
-    expect(AGE_GROUPS).toHaveLength(3);
-    expect(VISITOR_TYPES).toHaveLength(7);
-    expect(VISITOR_TYPES.filter(isNeutral)).toHaveLength(1);
-  });
-
-  it("round-trips every visitor type through its key", () => {
-    for (const vt of VISITOR_TYPES) {
-      expect(parseVisitorTypeKey(visitorTypeKey(vt))).toEqual(vt);
-    }
-  });
-
-  it("produces stable, readable keys", () => {
-    expect(visitorTypeKey("neutral")).toBe("neutral");
-    expect(visitorTypeKey({ gender: "male", ageGroup: "18-30" })).toBe("male-18-30");
-    expect(visitorTypeKey({ gender: "female", ageGroup: "50+" })).toBe("female-50+");
-  });
-
-  it("rejects unrecognised keys", () => {
-    expect(parseVisitorTypeKey("")).toBeNull();
-    expect(parseVisitorTypeKey("male")).toBeNull();
-    expect(parseVisitorTypeKey("alien-99")).toBeNull();
-    expect(parseVisitorTypeKey("male-99")).toBeNull();
-  });
-});
+import { ANALYTICS_EVENT_TYPES, apiOk, createApiClient } from "../index";
 
 describe("analytics vocabulary", () => {
   it("lists the three event types", () => {

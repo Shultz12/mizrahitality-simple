@@ -1,5 +1,12 @@
 # Prisma Schema Changelog
 
+## [2026-05-12] No migration — feature 4 (remove-ai-and-variants)
+
+**Feature:** remove-ai-and-variants (feature 4)
+**Schema change:** none.
+
+The previously-anticipated `Site.variantsJson` field is **not** being added; AI copy / the 7 audience variants / the styling-preset enum are descoped. The future `AnalyticsEvent` model (feature 6) will **not** carry visitor gender or age group. No `prisma migrate` was run; `pnpm db:migrate` stays a no-op.
+
 ## [2026-05-12] Migration: add_site
 
 **Feature:** site-builder (feature 3)
@@ -14,7 +21,6 @@
 
 - Single-tenant local demo: one `Site` per `OwnerAccount`; no `organizationId` / multi-tenancy (consistent with `OwnerAccount`).
 - No data backfill (no existing `Site` rows).
-- Feature 4 (ai-copy-and-variants) will add `variantsJson String?` to `Site` via this skill — not pre-added here.
 - Migration applied with `prisma migrate dev --name add_site`; `pnpm db:migrate` (`prisma migrate deploy`) re-applies idempotently.
 
 ## [2026-05-12] Migration: init

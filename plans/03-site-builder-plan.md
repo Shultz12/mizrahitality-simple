@@ -139,7 +139,7 @@ model Site {
   updatedAt   DateTime     @updatedAt
 }
 ```
-On `OwnerAccount`, add the back-relation `site Site?`. `contentJson` stores `JSON.stringify({ blocks: Block[] })`; the header text is `name` (not duplicated into a block). `isDraft` carried now so feature 5's Publish needs no schema change. **Do not pre-add `variantsJson`** — feature 4 owns it. No backfill (no existing `Site` rows).
+On `OwnerAccount`, add the back-relation `site Site?`. `contentJson` stores `JSON.stringify({ blocks: Block[] })`; the header text is `name` (not duplicated into a block). `isDraft` carried now so feature 5's Publish needs no schema change. **Do not pre-add `variantsJson`** — feature 4 owns it. No backfill (no existing `Site` rows). [Historical note — feature 4 was later re-scoped to `remove-ai-and-variants` (2026-05-12): AI copy and the audience variants were descoped, so `variantsJson` is never added. See `plans/04-remove-ai-and-variants-plan.md`.]
 
 `prisma/CHANGELOG.md` entry (sketch): "**[date] Migration: add_site** — Feature: site-builder (feature 3). Models: Site (new), OwnerAccount (back-relation `site`). `Site` = `id` (cuid PK), `ownerId` (`@unique` FK → OwnerAccount, `onDelete: Cascade`), `name`, `slug` (`@unique`), `contentJson` (String, default `{"blocks":[]}` — stores `{ blocks: Block[] }`; header text is `name`), `isDraft` (Boolean, default true — Publish semantics arrive in feature 5), `createdAt`/`updatedAt`. One site per owner. No backfill. Note: feature 4 will add `variantsJson String?` via this skill."
 

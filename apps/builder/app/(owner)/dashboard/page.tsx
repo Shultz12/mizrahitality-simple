@@ -14,7 +14,7 @@ import { requireOwner } from "@/lib/auth/current-owner";
 export const metadata: Metadata = { title: "Dashboard — Mizrahitality" };
 
 // TODO(feature-7): replace this placeholder with the real analytics dashboard
-// (total visits, Book Now hover/click counts, gender + age-group breakdowns).
+// (total visits, Book Now hover count, Book Now click count).
 export default async function DashboardPage() {
   const owner = await requireOwner();
 

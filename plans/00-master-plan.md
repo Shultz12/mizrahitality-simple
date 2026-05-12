@@ -28,7 +28,7 @@ plans/
 ├── 01-monorepo-foundation-plan.md <- done
 ├── 02-owner-auth-plan.md          <- created when feature 2 starts
 ├── 03-site-builder-plan.md            …and so on, in order:
-├── 04-ai-copy-and-variants-plan.md
+├── 04-remove-ai-and-variants-plan.md
 ├── 05-published-page-api-plan.md
 ├── 06-analytics-api-plan.md
 ├── 07-analytics-dashboard-plan.md
@@ -57,8 +57,7 @@ plans/
   `not-started → planning → in-progress → in-review → done`.
   Keep it current; the master plan's status table mirrors it.
 - **Skills are mandatory where they apply:** every Prisma/schema change goes through the
-  `update-database` skill; all Anthropic Claude work goes through the `claude-api` skill.
-  A feature plan that touches those areas must say so explicitly.
+  `update-database` skill. A feature plan that touches that area must say so explicitly.
 - **No commits unless the user asks** (per ROADMAP workflow). Plan files are updated in
   place as work progresses.
 
@@ -95,7 +94,7 @@ Build one feature at a time, in this order. Each feature assumes all earlier one
         ├──────────────► 3. site-builder
         │                       │
         │                       ▼
-        │                4. ai-copy-and-variants
+        │                4. remove-ai-and-variants
         │                       │
         │                       ▼
         ├──────────────► 5. published-page-api ─────┐
@@ -116,28 +115,27 @@ Build one feature at a time, in this order. Each feature assumes all earlier one
 | 1 | monorepo-foundation | done ([plan](01-monorepo-foundation-plan.md)) | — | 17, 18 (contract types only), 19 (framework choice), 20 (SDK wiring only) | `update-database` |
 | 2 | owner-auth | done ([plan](02-owner-auth-plan.md)) | 1 | 1, 2 | `update-database` |
 | 3 | site-builder | done ([plan](03-site-builder-plan.md)) | 1, 2 | 3, 4, 5, 10 (builder pages) | `update-database` |
-| 4 | ai-copy-and-variants | not-started | 1, 3 | 6, 7, 20 | `claude-api`, `update-database` |
+| 4 | remove-ai-and-variants | done ([plan](04-remove-ai-and-variants-plan.md)) | 1, 3 | — (removes REQ-6, 7, 13, 20; trims 8, 9, 12, 15, 18) | — |
 | 5 | published-page-api | not-started | 1, 3, 4 | 8, 12 (server side), 16 (API side), 18 | `update-database` |
 | 6 | analytics-api | not-started | 1, 3 | 15, 18 (events side) | `update-database` |
 | 7 | analytics-dashboard | not-started | 1, 2, 6 | 9, 10 (dashboard page) | — |
-| 8 | customer-site | not-started | 1, 5, 6 | 11, 12, 13, 14, 16, 19 | — |
-| 9 | demo-seed | not-started | 3, 4, 5 (and 6 for sample events) | 17 (seed script) | `update-database` (only if it needs schema help) |
+| 8 | customer-site | not-started | 1, 5, 6 | 11, 12, 14, 16, 19 | — |
+| 9 | demo-seed | not-started | 3, 5 (and 6 for sample events) | 17 (seed script) | `update-database` (only if it needs schema help) |
 
 Notes on ordering:
 - **monorepo-foundation is the hard prerequisite for everything** — it creates the
   workspace, both Next.js apps, the `@mizrahitality/contracts` package (with the
-  visitor-type and analytics-event vocabularies + `ApiSuccess<T>`/`ApiError` envelope),
-  the shared configs, Prisma+SQLite, env files, root/per-app scripts, and shadcn/ui +
-  Tailwind v4 setup.
-- **ai-copy-and-variants before published-page-api** — the published snapshot includes
-  the 7 variants, so variant generation and the styling-preset enum must exist first.
+  analytics-event vocabulary + `ApiSuccess<T>`/`ApiError` envelope), the shared configs,
+  Prisma+SQLite, env files, root/per-app scripts, and shadcn/ui + Tailwind v4 setup.
+- **remove-ai-and-variants before published-page-api** — so feature 5 designs the
+  published snapshot (and the REST shape) without variants/visitor types from the start.
 - **analytics-api can be built in parallel with published-page-api** but is listed after
   it to keep the stream linear; it only needs the monorepo + the `Site`/slug from
   site-builder.
 - **customer-site is the integration feature** — it consumes `published-page-api` and
-  `analytics-api` and exercises SSR, the demo switcher, Book Now, and the placeholder.
+  `analytics-api` and exercises SSR, Book Now, and the placeholder.
 - **demo-seed is last** — it stitches together a complete published site (account → site
-  → blocks → generated variants → published snapshot, plus a few sample analytics events).
+  → blocks → published snapshot, plus a few sample analytics events).
 
 ---
 
@@ -208,93 +206,85 @@ file (stored under `apps/builder/uploads/`, served by a Builder route handler at
 block order and content persisted. Tests: slug derivation + name validation + collision,
 HTML sanitization round-trip, the at-most-one constraint, persistence of block order.
 **Out of scope:** AI touch-up and variant generation (feature 4), the Publish action and
-the published-page API (feature 5), analytics.
+the published-page API (feature 5), analytics. [Historical note: feature 4 was later
+re-scoped to `remove-ai-and-variants` (2026-05-12) — AI copy and the audience variants
+were descoped, so the `Site` model gains no variants column; see
+`plans/04-remove-ai-and-variants-plan.md`. The "Deliver"/"Out of scope" text above is the
+original charter, kept as a historical record.]
 
-### 4 — ai-copy-and-variants
-**Charter.** The two AI features, on Anthropic Claude (Sonnet 4.6) with prompt caching
-(via the `claude-api` skill). Deliver: per-Rich-Text-block **"touch-up"** — a magic-wand
-button that sends the block's text to Claude and replaces it with an improved version, with
-the owner able to keep or revert (the kept text is what variant generation later rewrites);
-**variant generation** — one owner action produces the **7 variants**: 6 audience variants
-(gender ∈ {male, female} × age ∈ {18-30, 31-50, 50+}) each = the AI-rewritten copy of
-every Rich Text block on the page plus a **styling preset the AI picks from a fixed
-enumerated list** (define that list here — a handful of named presets, e.g. tone/color/
-spacing flavors; put the enum in `@mizrahitality/contracts` so the customer site and API
-share it), plus 1 **neutral** variant = the owner's own touched-up copy with the default
-preset; regenerating replaces the whole set; the variants are stored on the `Site` (the
-shape the published-page API will serve). Prompt caching configured for the static/shared
-prompt portions; AI failures handled without corrupting saved content. Tests: variant-set
-shape (7 entries, correct visitor-type tagging, neutral is segment-agnostic), preset is
-always one of the fixed list, regeneration overwrites, graceful failure handling (mock the
-Claude client). **Out of scope:** publishing the variants (feature 5), rendering them
-(feature 8), AI-synthesized layouts (the AI only authors copy + picks a preset).
+### 4 — remove-ai-and-variants
+**Charter.** Descope the AI and audience-targeting scope from the product. Deliver: a
+documentation sweep removing every reference to AI copy "touch-up", the 7 audience
+variants, the fixed styling-preset list, and visitor types (gender × age group, the
+neutral case, the demo switcher) from `PRD.md`, `VISION.md`, `ROADMAP.md`, the root
+`CLAUDE.md`, and `plans/00-master-plan.md` — including rewriting the downstream charters
+(5 published-page-api, 6 analytics-api, 7 analytics-dashboard, 8 customer-site, 9
+demo-seed) so they assume a single non-personalized published page and totals-only
+analytics; plus a code cleanup: remove the `@anthropic-ai/sdk` dependency and the
+`ANTHROPIC_API_KEY` env var, delete the visitor-type vocabulary module from
+`@mizrahitality/contracts` (`Gender`, `AgeGroup`, `VisitorType`, `VISITOR_TYPES`,
+`visitorTypeKey`, `parseVisitorTypeKey`, `NEUTRAL`, `isNeutral`), drop `visitorType` from
+`AnalyticsEventInput`, and update the few consumers (`contracts.test.ts`, both
+`smoke.test.ts`, the placeholder `apps/customer/app/page.tsx`), the `Site` schema comment,
+and the Prisma `CHANGELOG.md` note. No schema migration (the anticipated
+`Site.variantsJson` is simply never added). **Out of scope:** building any new product
+behavior; touching shipped builder UI (the magic-wand button was never added); renumbering
+REQs or later features.
 
 ### 5 — published-page-api
 **Charter.** Publishing and the REST endpoint the Customer app reads. Deliver: an explicit
 **Publish** button in the builder that snapshots the current built state (venue name,
-ordered blocks, image, Book Now presence, the 7 variants) into a **published** record —
-edits after publishing stay a draft until re-published; before first publish the site is
-"unpublished". The REST endpoint: `GET` the published page for a given **slug + visitor
-type** (gender+age or neutral), returning the structured JSON the Customer app renders
-(venue name → ordered blocks with type/content/image URL/Book Now presence + the selected
-variant's copy + styling preset), wrapped in the `ApiSuccess<T>`/`ApiError` envelope from
+ordered blocks, image, Book Now presence) into a **published** record — edits after
+publishing stay a draft until re-published; before first publish the site is "unpublished".
+The REST endpoint: `GET` the published page for a given **slug**, returning the structured
+JSON the Customer app renders (venue name → ordered blocks with type/content/image URL/Book
+Now presence), wrapped in the `ApiSuccess<T>`/`ApiError` envelope from
 `@mizrahitality/contracts`; well-defined responses for an **unknown slug** and for an
 **existing-but-unpublished slug** (so the customer site can show the placeholder); no
-authentication on this endpoint. Document the endpoint path, request params, response
-shape, and the visitor-type vocabulary (extend `@mizrahitality/contracts` and/or a short
-API doc). Tests: the publish snapshot is independent of subsequent draft edits, the
-endpoint returns the right variant per visitor type and the default/neutral when none is
-given, unknown vs. unpublished slug responses, envelope shape. **Out of scope:** analytics
-endpoints (feature 6), the customer-side rendering and switcher (feature 8).
+authentication on this endpoint. Document the endpoint path, request params, and response
+shape (and/or a short API doc). Tests: the publish snapshot is independent of subsequent
+draft edits, unknown vs. unpublished slug responses, envelope shape. **Out of scope:**
+analytics endpoints (feature 6), the customer-side rendering (feature 8).
 
 ### 6 — analytics-api
 **Charter.** Analytics ingestion, storage, and aggregation in the Builder app. Deliver: an
 `AnalyticsEvent` Prisma model (site/slug, event type ∈ {`visit`, `book-now-hover`,
-`book-now-click`}, visitor gender + age group — nullable for neutral/unset, timestamp) via
-`update-database`; a REST endpoint to **ingest** an event (slug + event type + visitor
-type, validated against the vocabularies in `@mizrahitality/contracts`, no auth); an
-**aggregation** query/endpoint for a slug giving total visits, Book Now click count, Book
-Now hover count, visitor gender breakdown, and visitor age-group breakdown — with the
-breakdowns consistent with the totals. Both wrapped in the standard envelope; documented
-alongside the published-page API. Tests (this is core logic — test it well): aggregation
-math (totals vs. breakdowns), event validation/rejection, idempotency expectations for the
+`book-now-click`}, timestamp) via `update-database`; a REST endpoint to **ingest** an event
+(slug + event type, validated against the event-type vocabulary in
+`@mizrahitality/contracts`, no auth); an **aggregation** query/endpoint for a slug giving
+total visits, Book Now click count, and Book Now hover count. Both wrapped in the standard
+envelope; documented alongside the published-page API. Tests (this is core logic — test it
+well): aggregation math, event validation/rejection, idempotency expectations for the
 `visit` event are documented/tested as decided in the plan. **Out of scope:** the dashboard
 UI (feature 7), emitting events (that's the customer site, feature 8).
 
 ### 7 — analytics-dashboard
 **Charter.** The owner's analytics dashboard page in the Builder app. Deliver: an
 authenticated dashboard (gated by owner-auth) for the owner's site showing total visits,
-Book Now click count, Book Now hover count, the visitor gender breakdown, and the visitor
-age-group breakdown — sourced from the analytics-api aggregation — with the breakdowns
-visibly consistent with totals and the view reflecting events as they arrive (server
-component re-fetch / refresh is fine; no realtime needed). Clean shadcn/ui layout, no
-raw/unstyled screens. Tests: light — the aggregation math is already covered in
-analytics-api; here, mostly a smoke test that the page renders with mocked aggregates.
-**Out of scope:** analytics ingestion/aggregation logic (feature 6), any new metrics
-beyond the listed five.
+Book Now click count, and Book Now hover count — sourced from the analytics-api aggregation
+— with the view reflecting events as they arrive (server component re-fetch / refresh is
+fine; no realtime needed). Clean shadcn/ui layout, no raw/unstyled screens. Tests: light —
+the aggregation math is already covered in analytics-api; here, mostly a smoke test that
+the page renders with mocked aggregates. **Out of scope:** analytics ingestion/aggregation
+logic (feature 6), any new metrics beyond the listed three.
 
 ### 8 — customer-site
 **Charter.** The public, server-side-rendered visitor site (`apps/customer`). Deliver:
 `app/[slug]/page.tsx` as a Server Component that, **on each request**, calls the Builder
 REST API (via `createApiClient` with `BUILDER_API_URL`, default `http://localhost:5111`)
-for the published page matching the current visitor type and renders the returned JSON
-**entirely server-side** — venue name, ordered blocks (Rich Text sanitized HTML, the one
-Image by URL, the Book Now button if present), with the selected variant's copy and its
-styling preset applied; **routing by the slug path segment** at `localhost:5112/<slug>`;
-an **unknown slug** handled gracefully and an **existing-but-unpublished slug** showing a
-friendly "coming soon" placeholder; an unobtrusive, always-reachable **visitor-type demo
-switcher** (gender + age group) — initial load shows the **neutral** variant, selecting a
-type re-renders server-side with that variant, and the choice persists within the session;
-the **Book Now** block renders as a button that on click shows a friendly confirmation
-modal/toast (no real booking/payment) and emits a `book-now-click` event tagged with the
-current visitor type, with hover emitting `book-now-hover`, and each page load emitting
-exactly one `visit` event — all posted to the analytics-api; graceful degradation
-(placeholder or neutral fallback) when the Builder API errors. shadcn/ui for buttons and
-icons; SSR verifiable with JS disabled / from the raw response, for every variant and the
-placeholder. Tests: SSR output contains rendered page content, variant selection by
-visitor type, placeholder vs. unknown-slug behavior, that exactly one `visit` event is
-emitted, Book Now event emission, API-error fallback. **Out of scope:** the API endpoints
-themselves (features 5 & 6), the builder/dashboard.
+for the published page and renders the returned JSON **entirely server-side** — venue name,
+ordered blocks (Rich Text sanitized HTML, the one Image by URL, the Book Now button if
+present); **routing by the slug path segment** at `localhost:5112/<slug>`; an **unknown
+slug** handled gracefully and an **existing-but-unpublished slug** showing a friendly
+"coming soon" placeholder; the **Book Now** block renders as a button that on click shows a
+friendly confirmation modal/toast (no real booking/payment) and emits a `book-now-click`
+event, with hover emitting `book-now-hover`, and each page load emitting exactly one
+`visit` event — all posted to the analytics-api; graceful degradation (placeholder
+fallback) when the Builder API errors. shadcn/ui for buttons and icons; SSR verifiable with
+JS disabled / from the raw response, for the published page and the placeholder. Tests: SSR
+output contains rendered page content, placeholder vs. unknown-slug behavior, that exactly
+one `visit` event is emitted, Book Now event emission, API-error fallback. **Out of
+scope:** the API endpoints themselves (features 5 & 6), the builder/dashboard.
 
 ### 9 — demo-seed
 **Charter.** Make `pnpm seed` populate a ready-to-show, **published** demo site so the
@@ -302,11 +292,10 @@ whole flow is demoable immediately after `pnpm install && pnpm db:migrate && pnp
 Deliver: a seed script (replacing the no-op stub from feature 1) that creates a demo
 `OwnerAccount` (known email/password), a `Site` with a sensible venue name → slug, a
 representative page (venue-name header + a couple of Rich Text blocks + one Image from the
-stock set + a Book Now button), the **7 variants** (use the real generation path, or
-ship canned variant content to avoid a live Claude call during seeding — decide in the
-plan and document it), a **published** snapshot of all that, and a handful of sample
-analytics events so the dashboard isn't empty; idempotent or safely re-runnable (clear +
-reseed). Document the demo credentials and the demo slug in the plan and/or `CLAUDE.md`.
+stock set + a Book Now button), a **published** snapshot of all that, and a handful of
+sample analytics events (`{ slug, type, timestamp }`) so the dashboard isn't empty;
+idempotent or safely re-runnable (clear + reseed). Document the demo credentials and the
+demo slug in the plan and/or `CLAUDE.md`.
 Tests: a smoke test that the seed script runs and produces a published, fetchable site
 (may be DB-dependent — note that). **Out of scope:** anything that changes app behavior;
 seed is data only.
@@ -315,24 +304,21 @@ seed is data only.
 
 ## 4. Cross-cutting rules (apply to every feature plan)
 
-- **SSR is mandatory** for the Customer published page (every variant + the placeholder);
-  both apps are Next.js (App Router).
+- **SSR is mandatory** for the Customer published page (the published page + the
+  placeholder); both apps are Next.js (App Router).
 - **The Builder↔Customer REST API has no auth**; the **slug** (derived from the venue
   name: letters + spaces only → spaces removed → lowercased) is the site identity.
 - **Shared contract types** live in `@mizrahitality/contracts` and are imported by both
-  apps as raw TS (listed in `transpilePackages`); the visitor-type vocabulary, the
-  analytics-event vocabulary, the styling-preset enum, and the `ApiSuccess<T>`/`ApiError`
-  envelope all live there.
-- **AI = Anthropic Claude (Sonnet 4.6) + prompt caching only** — no other provider; use
-  the `claude-api` skill.
+  apps as raw TS (listed in `transpilePackages`); the analytics-event vocabulary and the
+  `ApiSuccess<T>`/`ApiError` envelope live there.
 - **Every Prisma/schema change goes through the `update-database` skill** (and updates the
   changelog that skill maintains).
 - **UI:** shadcn/ui components (+ lucide-react icons) for buttons and icons across both
   apps; the rest is clean, simple UI built directly; no bespoke design system; a real
   design may be supplied later.
 - **Tests:** Vitest per workspace, moderate rigor — core logic well-tested (auth,
-  analytics aggregation, the REST contract, AI variant generation), lighter on the
-  supplied UI; smoke tests must be DB-independent.
+  analytics aggregation, the REST contract), lighter on the supplied UI; smoke tests must
+  be DB-independent.
 - **Local only:** Builder :5111 (`BUILDER_PORT`), Customer :5112 (`CUSTOMER_PORT`).
 - **Process:** one feature at a time, planned in Claude Code Plan mode; the feature plan
   file is the persisted artifact. No commits unless the user asks.
@@ -351,9 +337,8 @@ verified (and demoable); required tests written and green; `pnpm build && pnpm t
 
 **Milestone v1.0 (the whole thing):** every P0 requirement in `PRD.md` demoable
 end-to-end on localhost per the ROADMAP success criteria — owner signs up, creates a site,
-builds the page with all block types, AI-touches-up copy, generates the 7 variants,
-publishes; the SSR customer site renders the neutral variant by default and the matching
-variant on switcher change, shows the placeholder for an unpublished slug, and round-trips
-analytics to the dashboard with correct numbers; both products talk only over the
-documented REST API in the single pnpm monorepo; `pnpm seed` yields a ready-to-show site;
-core logic tested at moderate rigor with no P0 defects in the demo flow.
+builds the page with all block types, publishes; the SSR customer site renders the
+published page, shows the placeholder for an unpublished slug, and round-trips analytics to
+the dashboard with correct numbers; both products talk only over the documented REST API in
+the single pnpm monorepo; `pnpm seed` yields a ready-to-show site; core logic tested at
+moderate rigor with no P0 defects in the demo flow.

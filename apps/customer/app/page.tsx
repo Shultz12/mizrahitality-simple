@@ -1,4 +1,4 @@
-import { VISITOR_TYPES } from "@mizrahitality/contracts";
+import { ANALYTICS_EVENT_TYPES } from "@mizrahitality/contracts";
 import { Button } from "@/components/ui/button";
 import { BUILDER_API_URL } from "@/lib/env";
 
@@ -10,7 +10,7 @@ export default function HomePage() {
         Foundation scaffold. This site renders a venue&apos;s published page at{" "}
         <code className="rounded bg-muted px-1 py-0.5 text-sm">/&lt;slug&gt;</code>, fetched from the
         Builder API at <code className="rounded bg-muted px-1 py-0.5 text-sm">{BUILDER_API_URL}</code>;{" "}
-        {VISITOR_TYPES.length} visitor types are defined in{" "}
+        {ANALYTICS_EVENT_TYPES.length} analytics event types are defined in{" "}
         <code className="rounded bg-muted px-1 py-0.5 text-sm">@mizrahitality/contracts</code>.
       </p>
       <Button variant="outline">Book Now (placeholder)</Button>

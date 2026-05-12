@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { BUILDER_API_URL, apiClient } from "@/lib/env";
-import { VISITOR_TYPES } from "@mizrahitality/contracts";
+import { ANALYTICS_EVENT_TYPES } from "@mizrahitality/contracts";
 
 describe("customer foundation smoke", () => {
   it("falls back to the default Builder API URL when BUILDER_API_URL is unset", () => {
@@ -14,6 +14,6 @@ describe("customer foundation smoke", () => {
   });
 
   it("can import the shared contracts package", () => {
-    expect(VISITOR_TYPES).toHaveLength(7);
+    expect(ANALYTICS_EVENT_TYPES).toHaveLength(3);
   });
 });

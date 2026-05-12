@@ -22,7 +22,6 @@ model OwnerAccount {
 
 /// A venue owner's single site: the venue name (also the pinned header text), the
 /// derived slug (frozen at creation), and the page content (ordered blocks) as JSON.
-/// Feature 4 (ai-copy-and-variants) will add `variantsJson String?` via the same skill.
 model Site {
   id          String       @id @default(cuid())
   ownerId     String       @unique

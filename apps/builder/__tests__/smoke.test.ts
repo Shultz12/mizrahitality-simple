@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { cn } from "@/lib/utils";
 import { STOCK_IMAGES } from "@/lib/stock";
-import { VISITOR_TYPES } from "@mizrahitality/contracts";
+import { ANALYTICS_EVENT_TYPES } from "@mizrahitality/contracts";
 
 describe("builder foundation smoke", () => {
   it("merges class names via cn(), resolving conflicting Tailwind utilities", () => {
@@ -17,6 +17,6 @@ describe("builder foundation smoke", () => {
   });
 
   it("can import the shared contracts package", () => {
-    expect(VISITOR_TYPES).toHaveLength(7);
+    expect(ANALYTICS_EVENT_TYPES).toHaveLength(3);
   });
 });
