@@ -3,8 +3,10 @@
 // The single-page builder: a "Drag into site" tray, the canvas (pinned venue-name header that's
 // edited in place + the ordered, sortable blocks), and a live preview — all wired with
 // `@dnd-kit/core` + `@dnd-kit/sortable`. State is held client-side (`name`, `blocks`); "Save"
-// posts it through `saveSiteAction` (which re-validates + sanitizes server-side). Publish is
-// feature 5 — there's no Publish button here.
+// posts it through `saveSiteAction` (a draft — un-live), "Publish" through `publishSiteAction`
+// (snapshots it for `GET /api/sites/{slug}`). Both re-validate + sanitize server-side. The
+// publish-state badge is optimistic client state (`everPublished` / `dirty`) seeded from the
+// server props and re-synced on reload via `revalidatePath("/builder")`.
 
 import { useState, useTransition } from "react";
 import {
@@ -27,7 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { saveSiteAction } from "@/lib/site/actions";
+import { publishSiteAction, saveSiteAction } from "@/lib/site/actions";
 import type { Block, BlockType, BuilderSite } from "@/lib/site/types";
 import { cn } from "@/lib/utils";
 import { BlockTray } from "./block-tray";
@@ -46,12 +48,25 @@ function newBlock(type: BlockType): Block {
   }
 }
 
-type SaveStatus = { kind: "idle" } | { kind: "saved" } | { kind: "error"; message: string };
+type SaveStatus =
+  | { kind: "idle" }
+  | { kind: "saved" }
+  | { kind: "published" }
+  | { kind: "error"; message: string };
+
+function publishBadge(everPublished: boolean, dirty: boolean): string {
+  if (!everPublished) return "Not published yet";
+  if (dirty) return "You have changes that aren’t live yet — Publish to update the page.";
+  return "Published — the live page is up to date.";
+}
 
 export function SiteBuilder({ site }: { site: BuilderSite }) {
   const [name, setName] = useState(site.name);
   const [blocks, setBlocks] = useState<Block[]>(site.blocks);
   const [status, setStatus] = useState<SaveStatus>({ kind: "idle" });
+  const [everPublished, setEverPublished] = useState(site.published);
+  const [dirty, setDirty] = useState(site.hasUnpublishedChanges);
+  const [pendingAction, setPendingAction] = useState<"save" | "publish" | null>(null);
   const [pending, startTransition] = useTransition();
 
   const sensors = useSensors(
@@ -64,6 +79,7 @@ export function SiteBuilder({ site }: { site: BuilderSite }) {
 
   function touch() {
     setStatus({ kind: "idle" });
+    setDirty(true);
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -109,9 +125,31 @@ export function SiteBuilder({ site }: { site: BuilderSite }) {
   }
 
   function save() {
+    setPendingAction("save");
     startTransition(async () => {
       const result = await saveSiteAction(site.id, { name, blocks });
-      setStatus(result.ok ? { kind: "saved" } : { kind: "error", message: result.error });
+      if (result.ok) {
+        setDirty(true); // a save keeps the draft un-live
+        setStatus({ kind: "saved" });
+      } else {
+        setStatus({ kind: "error", message: result.error });
+      }
+      setPendingAction(null);
+    });
+  }
+
+  function publish() {
+    setPendingAction("publish");
+    startTransition(async () => {
+      const result = await publishSiteAction(site.id, { name, blocks });
+      if (result.ok) {
+        setEverPublished(true);
+        setDirty(false);
+        setStatus({ kind: "published" });
+      } else {
+        setStatus({ kind: "error", message: result.error });
+      }
+      setPendingAction(null);
     });
   }
 
@@ -124,19 +162,28 @@ export function SiteBuilder({ site }: { site: BuilderSite }) {
           </aside>
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-sm font-medium text-muted-foreground">Your page</h2>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="space-y-0.5">
+                <h2 className="text-sm font-medium text-muted-foreground">Your page</h2>
+                <p className="text-xs text-muted-foreground">{publishBadge(everPublished, dirty)}</p>
+              </div>
               <div className="flex items-center gap-3 text-sm">
                 {status.kind === "saved" ? (
                   <span className="text-muted-foreground">Saved</span>
+                ) : null}
+                {status.kind === "published" ? (
+                  <span className="text-muted-foreground">Published</span>
                 ) : null}
                 {status.kind === "error" ? (
                   <span role="alert" className="text-destructive">
                     {status.message}
                   </span>
                 ) : null}
-                <Button type="button" onClick={save} disabled={pending}>
-                  {pending ? "Saving…" : "Save"}
+                <Button type="button" variant="outline" onClick={save} disabled={pending}>
+                  {pendingAction === "save" ? "Saving…" : "Save"}
+                </Button>
+                <Button type="button" onClick={publish} disabled={pending}>
+                  {pendingAction === "publish" ? "Publishing…" : "Publish"}
                 </Button>
               </div>
             </div>

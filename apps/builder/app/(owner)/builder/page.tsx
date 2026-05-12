@@ -60,7 +60,8 @@ export default async function BuilderPage() {
         <p className="mt-1 text-muted-foreground">
           This address is permanent — it was set from the venue name when you created the site and
           can’t be changed. Editing the header below changes the name shown on the page, not the
-          address. (Your page goes live once you publish — that arrives in a later step.)
+          address. Your page goes live at this address once you publish — use the <strong>Publish</strong>{" "}
+          button below.
         </p>
       </div>
       <SiteBuilder site={site} />

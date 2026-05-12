@@ -116,7 +116,7 @@ Build one feature at a time, in this order. Each feature assumes all earlier one
 | 2 | owner-auth | done ([plan](02-owner-auth-plan.md)) | 1 | 1, 2 | `update-database` |
 | 3 | site-builder | done ([plan](03-site-builder-plan.md)) | 1, 2 | 3, 4, 5, 10 (builder pages) | `update-database` |
 | 4 | remove-ai-and-variants | done ([plan](04-remove-ai-and-variants-plan.md)) | 1, 3 | — (removes REQ-6, 7, 13, 20; trims 8, 9, 12, 15, 18) | — |
-| 5 | published-page-api | not-started | 1, 3, 4 | 8, 12 (server side), 16 (API side), 18 | `update-database` |
+| 5 | published-page-api | done ([plan](05-published-page-api-plan.md)) | 1, 3, 4 | 8, 12 (server side), 16 (API side), 18 | `update-database` |
 | 6 | analytics-api | not-started | 1, 3 | 15, 18 (events side) | `update-database` |
 | 7 | analytics-dashboard | not-started | 1, 2, 6 | 9, 10 (dashboard page) | — |
 | 8 | customer-site | not-started | 1, 5, 6 | 11, 12, 14, 16, 19 | — |

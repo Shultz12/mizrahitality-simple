@@ -1,9 +1,41 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { ANALYTICS_EVENT_TYPES, apiOk, createApiClient } from "../index";
+import {
+  ANALYTICS_EVENT_TYPES,
+  apiOk,
+  createApiClient,
+  type PublishedPage,
+  publishedPagePath,
+} from "../index";
 
 describe("analytics vocabulary", () => {
   it("lists the three event types", () => {
     expect([...ANALYTICS_EVENT_TYPES].sort()).toEqual(["book-now-click", "book-now-hover", "visit"]);
+  });
+});
+
+describe("published-page contract", () => {
+  it("builds the endpoint path for a slug", () => {
+    expect(publishedPagePath("cafemizrahi")).toBe("/api/sites/cafemizrahi");
+  });
+
+  it("encodes a slug with unusual characters", () => {
+    expect(publishedPagePath("a b")).toBe("/api/sites/a%20b");
+  });
+
+  it("wraps a PublishedPage in the success envelope (type smoke)", () => {
+    const page: PublishedPage = {
+      slug: "cafemizrahi",
+      name: "Cafe Mizrahi",
+      blocks: [
+        { id: "1", type: "rich-text", html: "<p>Hi</p>" },
+        { id: "2", type: "image", imageUrl: "/stock/cafe.svg", alt: "Café" },
+        { id: "3", type: "book-now" },
+      ],
+    };
+    const result = apiOk(page);
+    expect(result.ok).toBe(true);
+    expect(result.data.blocks[0]?.type).toBe("rich-text");
+    expect(result.data.blocks).toHaveLength(3);
   });
 });
 

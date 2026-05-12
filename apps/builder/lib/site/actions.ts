@@ -1,10 +1,12 @@
 "use server";
 
 // Server Actions backing the site builder (consistent with feature 2's `lib/auth/actions.ts` —
-// the only mandated REST API is Builder↔Customer, which is features 5/6). `createSiteAction` is a
-// `useActionState` form action; `saveSiteAction` / `uploadImageAction` are called imperatively
-// from the builder client (inside a `useTransition`). `requireOwner()` re-authenticates on every
-// call and `redirect()` throws `NEXT_REDIRECT`, so it's never wrapped in try/catch.
+// the only mandated REST API is Builder↔Customer, GET /api/sites/{slug} being feature 5's). The
+// validate/sanitize/persist logic lives in `./site` (`saveSite` / `publishSite`, DB-injectable so
+// it's unit-tested without a database); these actions are thin wrappers — `requireOwner()`
+// re-authenticates on every call and `redirect()` throws `NEXT_REDIRECT`, so it's never wrapped in
+// try/catch. `createSiteAction` is a `useActionState` form action; `saveSiteAction` /
+// `publishSiteAction` / `uploadImageAction` are called imperatively from the builder client.
 
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -14,11 +16,10 @@ import { redirect } from "next/navigation";
 
 import { requireOwner } from "@/lib/auth/current-owner";
 import { prisma } from "@/lib/db";
-import { parsePageContent, validateBlocks } from "./content";
-import { sanitizeRichTextHtml } from "./sanitize";
-import { createSite } from "./site";
-import { validateVenueName } from "./slug";
+import { createSite, publishSite, saveSite } from "./site";
 import { UPLOADS_DIR } from "./uploads-dir";
+
+export type { SaveResult } from "./site";
 
 /** `useActionState` state for the create-site form — `null` until a submit fails. */
 export type CreateSiteState = { error: string; field?: "venueName" } | null;
@@ -42,41 +43,33 @@ export async function createSiteAction(
   redirect("/builder");
 }
 
-export type SaveResult = { ok: true } | { ok: false; error: string };
-
 /**
- * Persist the built page. Re-checks ownership server-side (never trusts the client `siteId`),
- * re-validates the venue name (the pinned header reuses the rule — the slug stays untouched),
- * parses + validates + sanitizes the blocks, then writes `name` + `contentJson`. Publish is
- * feature 5 — every save keeps `isDraft` as is.
+ * Save the built page as a draft (stays un-live until Publish). Delegates to `saveSite`, which
+ * re-checks ownership, re-validates the venue name, parses + validates + sanitizes the blocks, and
+ * writes `name` + `contentJson` + `isDraft: true`.
  */
 export async function saveSiteAction(
   siteId: string,
   payload: { name: string; blocks: unknown },
-): Promise<SaveResult> {
+) {
   const owner = await requireOwner();
+  const result = await saveSite(siteId, owner.id, payload);
+  if (result.ok) revalidatePath("/builder");
+  return result;
+}
 
-  const site = await prisma.site.findUnique({ where: { id: siteId } });
-  if (!site || site.ownerId !== owner.id) return { ok: false, error: "Site not found." };
-
-  const name = validateVenueName(payload.name);
-  if (!name.ok) return { ok: false, error: name.error };
-
-  const rawBlocks = payload.blocks;
-  const parsed = parsePageContent(Array.isArray(rawBlocks) ? { blocks: rawBlocks } : rawBlocks);
-  const validated = validateBlocks(parsed.blocks);
-  if (!validated.ok) return { ok: false, error: validated.error };
-
-  const blocks = validated.blocks.map((b) =>
-    b.type === "rich-text" ? { ...b, html: sanitizeRichTextHtml(b.html) } : b,
-  );
-
-  await prisma.site.update({
-    where: { id: site.id },
-    data: { name: name.value, contentJson: JSON.stringify({ blocks }) },
-  });
-  revalidatePath("/builder");
-  return { ok: true };
+/**
+ * Publish the built page: same validation/sanitization as Save, and additionally snapshots it into
+ * `publishedJson` / `publishedAt` and sets `isDraft: false` — so `GET /api/sites/{slug}` serves it.
+ */
+export async function publishSiteAction(
+  siteId: string,
+  payload: { name: string; blocks: unknown },
+) {
+  const owner = await requireOwner();
+  const result = await publishSite(siteId, owner.id, payload);
+  if (result.ok) revalidatePath("/builder");
+  return result;
 }
 
 const ALLOWED_IMAGE_MIME = {

@@ -22,14 +22,18 @@ model OwnerAccount {
 
 /// A venue owner's single site: the venue name (also the pinned header text), the
 /// derived slug (frozen at creation), and the page content (ordered blocks) as JSON.
+/// `publishedJson` / `publishedAt` hold the snapshot served by GET /api/sites/{slug};
+/// `isDraft` is `false` after a Publish, `true` after a post-publish Save.
 model Site {
-  id          String       @id @default(cuid())
-  ownerId     String       @unique
-  owner       OwnerAccount @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  name        String
-  slug        String       @unique
-  contentJson String       @default("{\"blocks\":[]}")
-  isDraft     Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id            String       @id @default(cuid())
+  ownerId       String       @unique
+  owner         OwnerAccount @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name          String
+  slug          String       @unique
+  contentJson   String       @default("{\"blocks\":[]}")
+  isDraft       Boolean      @default(true)
+  publishedJson String? // JSON.stringify({ name, blocks }) snapshot at the last Publish; null = never published
+  publishedAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }

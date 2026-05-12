@@ -29,8 +29,21 @@ export type BlockType = (typeof BLOCK_TYPES)[number];
 export const SINGLETON_BLOCK_TYPES = ["image", "book-now"] as const;
 export type SingletonBlockType = (typeof SINGLETON_BLOCK_TYPES)[number];
 
-/** What the builder client posts to `saveSiteAction`. `blocks` arrives `unknown`-typed at the action boundary. */
+/** What the builder client posts to `saveSiteAction` / `publishSiteAction`. `blocks` arrives `unknown`-typed at the action boundary. */
 export type SitePayload = { name: string; blocks: Block[] };
 
-/** A site as the builder UI consumes it (Prisma's `contentJson` already parsed). */
-export type BuilderSite = { id: string; name: string; slug: string; blocks: Block[] };
+/**
+ * A site as the builder UI consumes it (Prisma's `contentJson` already parsed).
+ * - `published` — has the site been published at least once (`Site.publishedJson !== null`).
+ * - `hasUnpublishedChanges` — the draft has edits not yet live (`Site.isDraft`; also true before any Publish).
+ * - `publishedAt` — ISO string of the last Publish, or `null` if never published.
+ */
+export type BuilderSite = {
+  id: string;
+  name: string;
+  slug: string;
+  blocks: Block[];
+  published: boolean;
+  hasUnpublishedChanges: boolean;
+  publishedAt: string | null;
+};

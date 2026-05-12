@@ -1,5 +1,22 @@
 # Prisma Schema Changelog
 
+## [2026-05-12] Migration: add_published_snapshot
+
+**Feature:** published-page-api (feature 5)
+**Models affected:** Site
+
+### Changes
+
+- Added field `publishedJson` (`String?`, nullable) to `Site` — `JSON.stringify({ name, blocks })` snapshot taken at the last Publish; `null` ⇒ the site has never been published. `GET /api/sites/{slug}` reads only this column to build its response.
+- Added field `publishedAt` (`DateTime?`, nullable) to `Site` — when the current published snapshot was taken; `null` ⇒ never published.
+- `isDraft` (Boolean, `@default(true)` — added inert in feature 3's `add_site`) is now **active**: `saveSite` writes `true` (a draft with changes not yet live), `publishSite` writes `false`. The schema definition of `isDraft` is unchanged.
+
+### Notes
+
+- Two nullable columns — SQLite `ALTER TABLE ... ADD COLUMN` only; no data backfill (existing rows get `NULL`, i.e. "never published", which is correct).
+- Not breaking: existing reads/writes are unaffected; the new columns are optional.
+- Migration applied with `prisma migrate dev --name add_published_snapshot`; `pnpm db:migrate` (`prisma migrate deploy`) re-applies idempotently.
+
 ## [2026-05-12] No migration — feature 4 (remove-ai-and-variants)
 
 **Feature:** remove-ai-and-variants (feature 4)
