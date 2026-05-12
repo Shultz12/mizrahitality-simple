@@ -37,3 +37,19 @@ model Site {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }
+
+/// A single analytics event posted by the Customer site to POST /api/events. One row per accepted
+/// POST — no server-side dedup; the Customer app guarantees exactly one `visit` per page load (REQ-15).
+/// `slug` is a plain copy of the venue slug (no FK to Site — the slug is the API identity, the
+/// aggregation needs no join, and sites are never deleted in this demo; see prisma/CHANGELOG.md).
+/// `type` is one of ANALYTICS_EVENT_TYPES from @mizrahitality/contracts ("visit" | "book-now-hover"
+/// | "book-now-click"), validated before insert; stored as String (SQLite has no enums).
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  slug      String
+  type      String
+  createdAt DateTime @default(now())
+
+  @@index([slug])
+  @@index([slug, type])
+}

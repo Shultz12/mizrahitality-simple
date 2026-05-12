@@ -1,5 +1,23 @@
 # Prisma Schema Changelog
 
+## [2026-05-12] Migration: add_analytics_event
+
+**Feature:** analytics-api (feature 6)
+**Models affected:** AnalyticsEvent (new)
+
+### Changes
+
+- Added model `AnalyticsEvent` with fields: `id` (String, cuid PK), `slug` (String — a plain copy of the venue slug; **no FK** to `Site`: the slug is the API identity, the per-slug aggregation needs no join, and accounts/sites are never deleted in this demo — trade-off accepted: no referential integrity / possible orphan rows), `type` (String — one of `ANALYTICS_EVENT_TYPES` from `@mizrahitality/contracts`: `"visit"` | `"book-now-hover"` | `"book-now-click"`; validated in `parseAnalyticsEventInput` before insert; stored as String — SQLite has no enums), `createdAt` (DateTime, `@default(now())`).
+- Added index `AnalyticsEvent(slug)` and compound index `AnalyticsEvent(slug, type)` — cover the two reads (`POST /api/events` looks up the site by slug; `GET /api/sites/{slug}/analytics` lists events by slug).
+
+### Notes
+
+- New-table-only migration — a single `CREATE TABLE` + two `CREATE INDEX`; no data backfill.
+- Not breaking — no existing model touched.
+- One row per accepted `POST /api/events` — **no server-side de-duplication**; the Customer app (feature 8) guarantees exactly one `visit` per page load (REQ-15).
+- Confirms the feature-4 note: this model carries **no** visitor gender or age group.
+- Migration applied with `prisma migrate dev --name add_analytics_event`; `pnpm db:migrate` (`prisma migrate deploy`) re-applies idempotently.
+
 ## [2026-05-12] Migration: add_published_snapshot
 
 **Feature:** published-page-api (feature 5)

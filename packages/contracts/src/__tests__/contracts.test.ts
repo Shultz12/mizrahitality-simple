@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   ANALYTICS_EVENT_TYPES,
+  analyticsEventsPath,
+  analyticsSummaryPath,
+  type AnalyticsSummary,
   apiOk,
   createApiClient,
   type PublishedPage,
@@ -36,6 +39,32 @@ describe("published-page contract", () => {
     expect(result.ok).toBe(true);
     expect(result.data.blocks[0]?.type).toBe("rich-text");
     expect(result.data.blocks).toHaveLength(3);
+  });
+});
+
+describe("analytics-summary contract", () => {
+  it("builds the ingest endpoint path", () => {
+    expect(analyticsEventsPath()).toBe("/api/events");
+  });
+
+  it("builds the per-slug summary path", () => {
+    expect(analyticsSummaryPath("cafemizrahi")).toBe("/api/sites/cafemizrahi/analytics");
+  });
+
+  it("encodes a slug with unusual characters", () => {
+    expect(analyticsSummaryPath("a b")).toBe("/api/sites/a%20b/analytics");
+  });
+
+  it("wraps an AnalyticsSummary in the success envelope (type smoke)", () => {
+    const summary: AnalyticsSummary = {
+      slug: "cafemizrahi",
+      visits: 3,
+      bookNowHovers: 1,
+      bookNowClicks: 0,
+    };
+    const result = apiOk(summary);
+    expect(result.ok).toBe(true);
+    expect(typeof result.data.visits).toBe("number");
   });
 });
 
