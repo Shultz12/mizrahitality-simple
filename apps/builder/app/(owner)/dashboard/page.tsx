@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
-import { requireOwner } from "@/lib/auth/current-owner";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { requireOwner } from "@/lib/auth/current-owner";
 
 export const metadata: Metadata = { title: "Dashboard — Mizrahitality" };
 
@@ -22,10 +24,14 @@ export default async function DashboardPage() {
         <CardTitle>Signed in as {owner.email}</CardTitle>
         <CardDescription>Your account is ready.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Your site builder and analytics dashboard arrive in the next features.
+          Build your venue’s page in the site builder. Your analytics dashboard arrives in a later
+          feature.
         </p>
+        <Button asChild>
+          <Link href="/builder">Open the site builder</Link>
+        </Button>
       </CardContent>
     </Card>
   );

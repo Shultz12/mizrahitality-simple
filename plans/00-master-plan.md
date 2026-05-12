@@ -115,7 +115,7 @@ Build one feature at a time, in this order. Each feature assumes all earlier one
 |---|---|---|---|---|---|
 | 1 | monorepo-foundation | done ([plan](01-monorepo-foundation-plan.md)) | — | 17, 18 (contract types only), 19 (framework choice), 20 (SDK wiring only) | `update-database` |
 | 2 | owner-auth | done ([plan](02-owner-auth-plan.md)) | 1 | 1, 2 | `update-database` |
-| 3 | site-builder | not-started | 1, 2 | 3, 4, 5, 10 (builder pages) | `update-database` |
+| 3 | site-builder | done ([plan](03-site-builder-plan.md)) | 1, 2 | 3, 4, 5, 10 (builder pages) | `update-database` |
 | 4 | ai-copy-and-variants | not-started | 1, 3 | 6, 7, 20 | `claude-api`, `update-database` |
 | 5 | published-page-api | not-started | 1, 3, 4 | 8, 12 (server side), 16 (API side), 18 | `update-database` |
 | 6 | analytics-api | not-started | 1, 3 | 15, 18 (events side) | `update-database` |
