@@ -14,13 +14,16 @@ A small monorepo with two cooperating, **server-side-rendered** Next.js apps:
 The two apps talk **only** over the documented REST API (`apps/builder/app/api/README.md`).
 
 Tech: pnpm workspace · Next.js (App Router, SSR) · Prisma + SQLite · shadcn/ui + Tailwind v4 ·
-`@dnd-kit` · Tiptap · bcrypt + a signed httpOnly session cookie · Vitest. Architecture and design
-details live in [`CLAUDE.md`](./CLAUDE.md); product docs in [`PRD.md`](./PRD.md) /
-[`VISION.md`](./VISION.md) / [`ROADMAP.md`](./ROADMAP.md).
+`@dnd-kit` · Tiptap · bcrypt + a signed httpOnly session cookie · Vitest. Per-file detail lives in
+[`CLAUDE.md`](./CLAUDE.md); product docs in [`PRD.md`](./PRD.md) / [`VISION.md`](./VISION.md) /
+[`ROADMAP.md`](./ROADMAP.md). For the big-picture architecture (how the two apps cooperate, the
+key request flows, and the design decisions behind the choices), see
+[`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
 ## Quick start
 
-Needs **Node.js >= 20** and **pnpm >= 9** (`corepack enable` picks up the pinned version).
+Needs **Node.js >= 20** and **pnpm >= 9**. If you have Node 20+, `corepack enable` will install the
+pinned pnpm version automatically.
 
 ```bash
 pnpm install
@@ -34,6 +37,15 @@ pnpm dev          # Builder → http://localhost:5113 , Customer → http://loca
 Then sign in to the Builder at http://localhost:5113/sign-in with `demo@mizrahitality.test` /
 `demo1234`, or open the public demo venue at http://localhost:5114/hotelmizrahi. The sections below
 explain each step.
+
+### Verify it works
+
+- Open http://localhost:5114/hotelmizrahi — you should see the seeded venue page (a pinned
+  "Hotel Mizrahi" header, two Rich Text blocks, the stock hotel image, and a Book Now button).
+- Sign in to http://localhost:5113/sign-in with `demo@mizrahitality.test` / `demo1234`, then
+  click **Dashboard** — the metric tiles should show non-zero counts from the seeded analytics.
+- `curl http://localhost:5113/api/sites/hotelmizrahi` should return a JSON envelope with
+  `"ok":true`.
 
 ## Setup
 
