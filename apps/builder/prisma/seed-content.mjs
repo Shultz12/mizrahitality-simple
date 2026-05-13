@@ -101,3 +101,36 @@ export function demoEvents(now = new Date()) {
     createdAt: new Date(base - daysAgo * DAY_MS - hoursAgo * HOUR_MS),
   }));
 }
+
+// ---------------------------------------------------------------------------
+// Second demo owner — fully seeded but with **zero** analytics events. Lets the
+// sign-in page's "Quick fill" panel offer a populated demo (above) *and* an
+// empty one whose dashboard fills up live as the reviewer clicks the published
+// venue page. Same shape as the first owner; no second event set.
+// ---------------------------------------------------------------------------
+
+export const DEMO2_EMAIL = "demo2@mizrahitality.test";
+export const DEMO2_PASSWORD = "demo1234";
+
+export const DEMO2_VENUE_NAME = "Sample Inn";
+export const DEMO2_SLUG = DEMO2_VENUE_NAME.replace(/\s+/g, "").toLowerCase(); // "sampleinn"
+
+/**
+ * Minimal published page — one intro Rich Text + a Book Now button. No image (saves a stock asset),
+ * but enough surface for `visit`, `book-now-hover`, and `book-now-click` events to flow back. Each
+ * `html` is already in the `sanitizeRichTextHtml` shape (allowed tags only, no inter-tag whitespace,
+ * no attributes), same convention as `DEMO_BLOCKS`.
+ */
+export const DEMO2_BLOCKS = [
+  {
+    id: "intro",
+    type: "rich-text",
+    html:
+      "<h2>Welcome to Sample Inn</h2>" +
+      "<p>A quiet coastal stay. Click <strong>Book Now</strong> below — every hover and click flows into the owner dashboard live.</p>",
+  },
+  { id: "book", type: "book-now" },
+];
+
+export const DEMO2_CONTENT_JSON = JSON.stringify({ blocks: DEMO2_BLOCKS });
+export const DEMO2_PUBLISHED_JSON = JSON.stringify({ name: DEMO2_VENUE_NAME, blocks: DEMO2_BLOCKS });

@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { DemoCredentialsPanel } from "@/components/auth/demo-credentials-panel";
+
 import { SignInForm } from "./sign-in-form";
 
 export const metadata: Metadata = { title: "Sign in — Mizrahitality" };
 
 export default function SignInPage() {
   return (
-    <main className="w-full max-w-[400px]">
+    <main className="relative w-full max-w-[400px]">
       <div className="flex flex-col gap-6 rounded-xl border border-border bg-card p-6">
         <div className="flex flex-col gap-1 text-left">
           <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
@@ -27,6 +29,9 @@ export default function SignInPage() {
             Create an account
           </Link>
         </div>
+      </div>
+      <div className="absolute top-0 left-full ml-6 hidden lg:block">
+        <DemoCredentialsPanel />
       </div>
     </main>
   );

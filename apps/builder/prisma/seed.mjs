@@ -17,6 +17,12 @@ import {
   DEMO_PUBLISHED_JSON,
   DEMO_SLUG,
   DEMO_VENUE_NAME,
+  DEMO2_CONTENT_JSON,
+  DEMO2_EMAIL,
+  DEMO2_PASSWORD,
+  DEMO2_PUBLISHED_JSON,
+  DEMO2_SLUG,
+  DEMO2_VENUE_NAME,
   demoEvents,
 } from "./seed-content.mjs";
 
@@ -27,11 +33,12 @@ const CUSTOMER_URL = `http://localhost:${process.env.CUSTOMER_PORT ?? 5114}`;
 const prisma = new PrismaClient();
 
 async function main() {
-  // Scoped reset — order: events first (no FK on AnalyticsEvent.slug), then the site, then the
-  // owner (OwnerAccount → Site cascades, but be explicit). `deleteMany` never throws on no match.
-  await prisma.analyticsEvent.deleteMany({ where: { slug: DEMO_SLUG } });
-  await prisma.site.deleteMany({ where: { slug: DEMO_SLUG } });
-  await prisma.ownerAccount.deleteMany({ where: { email: DEMO_EMAIL } });
+  // Scoped reset — order: events first (no FK on AnalyticsEvent.slug), then sites, then owners
+  // (OwnerAccount → Site cascades, but be explicit). `deleteMany` never throws on no match.
+  // Widened to both demo owners so the reset stays idempotent for either one.
+  await prisma.analyticsEvent.deleteMany({ where: { slug: { in: [DEMO_SLUG, DEMO2_SLUG] } } });
+  await prisma.site.deleteMany({ where: { slug: { in: [DEMO_SLUG, DEMO2_SLUG] } } });
+  await prisma.ownerAccount.deleteMany({ where: { email: { in: [DEMO_EMAIL, DEMO2_EMAIL] } } });
 
   // bcrypt cost 12 — keep in sync with SALT_ROUNDS in lib/auth/password.ts. (Drift is cosmetic:
   // bcrypt.compare reads the cost from the stored hash, so sign-in works regardless.)
@@ -53,15 +60,38 @@ async function main() {
   const events = demoEvents();
   await prisma.analyticsEvent.createMany({ data: events });
 
+  // Owner 2 — published Sample Inn, zero analytics events. Pairs with the second "Quick fill" card
+  // on the sign-in page: an empty dashboard the reviewer can fill up live by hitting the public URL.
+  const passwordHash2 = await bcrypt.hash(DEMO2_PASSWORD, 12);
+  const owner2 = await prisma.ownerAccount.create({
+    data: { email: DEMO2_EMAIL, passwordHash: passwordHash2 },
+  });
+
+  await prisma.site.create({
+    data: {
+      ownerId: owner2.id,
+      name: DEMO2_VENUE_NAME,
+      slug: DEMO2_SLUG,
+      contentJson: DEMO2_CONTENT_JSON,
+      isDraft: false,
+      publishedJson: DEMO2_PUBLISHED_JSON,
+      publishedAt: new Date(),
+    },
+  });
+
   console.log(
     [
-      "seed: demo site ready.",
-      `  owner:     ${DEMO_EMAIL} / ${DEMO_PASSWORD}`,
-      `  venue:     ${DEMO_VENUE_NAME}  (slug: ${DEMO_SLUG})`,
+      "seed: demo sites ready.",
+      `  owner 1:   ${DEMO_EMAIL} / ${DEMO_PASSWORD}`,
+      `  venue 1:   ${DEMO_VENUE_NAME}  (slug: ${DEMO_SLUG})`,
       `  events:    ${events.length} sample analytics rows`,
+      `  owner 2:   ${DEMO2_EMAIL} / ${DEMO2_PASSWORD}   [empty · live]`,
+      `  venue 2:   ${DEMO2_VENUE_NAME}  (slug: ${DEMO2_SLUG})`,
       `  builder:   ${BUILDER_URL}/sign-in  →  ${BUILDER_URL}/dashboard  ·  ${BUILDER_URL}/builder`,
-      `  public:    ${CUSTOMER_URL}/${DEMO_SLUG}`,
-      `  api:       ${BUILDER_URL}/api/sites/${DEMO_SLUG}`,
+      `  public 1:  ${CUSTOMER_URL}/${DEMO_SLUG}`,
+      `  public 2:  ${CUSTOMER_URL}/${DEMO2_SLUG}`,
+      `  api 1:     ${BUILDER_URL}/api/sites/${DEMO_SLUG}`,
+      `  api 2:     ${BUILDER_URL}/api/sites/${DEMO2_SLUG}`,
     ].join("\n"),
   );
 }
