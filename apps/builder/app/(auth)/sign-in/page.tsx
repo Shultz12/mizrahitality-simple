@@ -1,34 +1,33 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { SignInForm } from "./sign-in-form";
 
 export const metadata: Metadata = { title: "Sign in — Mizrahitality" };
 
 export default function SignInPage() {
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>Sign in</CardTitle>
-        <CardDescription>Welcome back — sign in to manage your venue site.</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <main className="w-full max-w-[400px]">
+      <div className="flex flex-col gap-6 rounded-xl border border-border bg-card p-6">
+        <div className="flex flex-col gap-1 text-left">
+          <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
+          <p className="text-sm text-muted-foreground">
+            Please enter your details to sign in.
+          </p>
+        </div>
+
         <SignInForm />
-      </CardContent>
-      <CardFooter className="text-sm text-muted-foreground">
-        New here?{" "}
-        <Link href="/sign-up" className="ml-1 font-medium text-primary underline-offset-4 hover:underline">
-          Create an account
-        </Link>
-      </CardFooter>
-    </Card>
+
+        <div className="border-t border-border pt-4 text-center text-sm text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/sign-up"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            Create an account
+          </Link>
+        </div>
+      </div>
+    </main>
   );
 }

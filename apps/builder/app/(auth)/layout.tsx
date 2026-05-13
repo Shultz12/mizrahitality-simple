@@ -10,6 +10,8 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
   if (owner) redirect("/dashboard");
 
   return (
-    <div className="min-h-svh grid place-items-center bg-muted/30 p-4">{children}</div>
+    <div className="min-h-svh flex items-center justify-center bg-background p-6">
+      {children}
+    </div>
   );
 }

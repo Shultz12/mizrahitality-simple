@@ -8,7 +8,7 @@
 // publish-state badge is optimistic client state (`everPublished` / `dirty`) seeded from the
 // server props and re-synced on reload via `revalidatePath("/builder")`.
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   DndContext,
   type DragEndEvent,
@@ -25,6 +25,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { AlertTriangle, CheckCircle2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -168,17 +169,6 @@ export function SiteBuilder({ site }: { site: BuilderSite }) {
                 <p className="text-xs text-muted-foreground">{publishBadge(everPublished, dirty)}</p>
               </div>
               <div className="flex items-center gap-3 text-sm">
-                {status.kind === "saved" ? (
-                  <span className="text-muted-foreground">Saved</span>
-                ) : null}
-                {status.kind === "published" ? (
-                  <span className="text-muted-foreground">Published</span>
-                ) : null}
-                {status.kind === "error" ? (
-                  <span role="alert" className="text-destructive">
-                    {status.message}
-                  </span>
-                ) : null}
                 <Button type="button" variant="outline" onClick={save} disabled={pending}>
                   {pendingAction === "save" ? "Saving…" : "Save"}
                 </Button>
@@ -216,6 +206,8 @@ export function SiteBuilder({ site }: { site: BuilderSite }) {
             </Card>
           </div>
         </div>
+
+        <SaveToast status={status} onDismiss={() => setStatus({ kind: "idle" })} />
       </DndContext>
     </TooltipProvider>
   );
@@ -256,6 +248,59 @@ function Canvas({
           ))}
         </SortableContext>
       )}
+    </div>
+  );
+}
+
+// Fixed bottom-right save/publish/error feedback. Auto-dismisses after ~2.5s for success states;
+// errors persist until the user dismisses or another save/publish supersedes them.
+const TOAST_AUTO_DISMISS_MS = 2500;
+
+function SaveToast({ status, onDismiss }: { status: SaveStatus; onDismiss: () => void }) {
+  useEffect(() => {
+    if (status.kind !== "saved" && status.kind !== "published") return;
+    const id = setTimeout(onDismiss, TOAST_AUTO_DISMISS_MS);
+    return () => clearTimeout(id);
+  }, [status, onDismiss]);
+
+  if (status.kind === "idle") return null;
+
+  const isError = status.kind === "error";
+  const Icon = isError ? AlertTriangle : CheckCircle2;
+  const title = isError
+    ? "Couldn’t save"
+    : status.kind === "published"
+      ? "Published"
+      : "Saved";
+  const body = isError
+    ? status.message
+    : status.kind === "published"
+      ? "Your live page is up to date."
+      : "Changes saved successfully.";
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      <div
+        role={isError ? "alert" : "status"}
+        className="flex min-w-[320px] items-center gap-3 rounded-md border border-border bg-card p-4 shadow-lg"
+      >
+        <Icon
+          className={cn("size-5 shrink-0", isError ? "text-destructive" : "text-success")}
+          aria-hidden
+        />
+        <div className="flex-1">
+          <p className="text-sm font-medium">{title}</p>
+          <p className="text-xs text-muted-foreground">{body}</p>
+        </div>
+        <button
+          type="button"
+          onClick={onDismiss}
+          aria-label="Dismiss notification"
+          className="text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <X className="size-4" aria-hidden />
+        </button>
+      </div>
     </div>
   );
 }

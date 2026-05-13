@@ -45,14 +45,21 @@ export default async function BuilderPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border bg-muted/40 p-4 text-sm">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Site builder</h1>
+        <p className="text-sm text-muted-foreground">
+          Edit your page below. Save to keep a draft; Publish to push it live.
+        </p>
+      </div>
+
+      <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm">
         <p className="font-medium">Your site’s web address</p>
         <p className="mt-1">
           <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-primary underline-offset-4 hover:underline"
+            className="font-mono text-foreground underline-offset-4 hover:underline"
           >
             {url}
           </a>

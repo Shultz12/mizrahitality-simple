@@ -11,7 +11,6 @@ import { Eye, MousePointer2, MousePointerClick, type LucideIcon } from "lucide-r
 
 import { analyticsSummaryPath, type AnalyticsSummary } from "@mizrahitality/contracts";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { metricTiles, type MetricTile } from "@/lib/analytics/dashboard-view";
 
 const POLL_MS = 10_000;
@@ -58,20 +57,25 @@ export function AnalyticsMetrics({
 
   return (
     <div className="space-y-2">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {tiles.map((tile) => {
           const Icon = TILE_ICONS[tile.key];
           return (
-            <Card key={tile.key}>
-              <CardHeader>
-                <CardDescription className="flex items-center gap-1.5">
-                  <Icon className="size-4" aria-hidden="true" />
-                  {tile.label}
-                </CardDescription>
-                <CardTitle className="text-3xl tabular-nums">{tile.value}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-xs text-muted-foreground">{tile.hint}</CardContent>
-            </Card>
+            <div
+              key={tile.key}
+              className="flex min-h-[160px] flex-col justify-between rounded-xl border border-border bg-card p-6"
+            >
+              <div className="flex items-start justify-between">
+                <span className="text-sm font-medium text-muted-foreground">{tile.label}</span>
+                <Icon className="size-5 text-foreground" aria-hidden="true" />
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-semibold tracking-tight tabular-nums">
+                  {tile.value}
+                </div>
+                <div className="text-xs text-muted-foreground">{tile.hint}</div>
+              </div>
+            </div>
           );
         })}
       </div>

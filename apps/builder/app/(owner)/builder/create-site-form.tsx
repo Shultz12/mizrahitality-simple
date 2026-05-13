@@ -32,6 +32,7 @@ export function CreateSiteForm() {
           value={name}
           onChange={(event) => setName(event.target.value)}
           aria-invalid={state?.field === "venueName" || undefined}
+          className="h-11"
         />
         <p className="text-xs text-muted-foreground">
           English letters and spaces only.{" "}
@@ -50,7 +51,7 @@ export function CreateSiteForm() {
           {state.error}
         </p>
       ) : null}
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending} className="h-11">
         {pending ? "Creating…" : "Create site"}
       </Button>
     </form>

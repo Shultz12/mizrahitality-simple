@@ -76,23 +76,23 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">{site!.name} — Analytics</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Your live site:{" "}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Your dashboard</h1>
+        <p className="text-sm text-muted-foreground">
+          {site!.name} — your live site:{" "}
           <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-primary underline-offset-4 hover:underline"
+            className="font-mono text-foreground underline-offset-4 hover:underline"
           >
             {url}
           </a>
         </p>
         {!site!.published && (
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Your site isn’t published yet —{" "}
-            <Link href="/builder" className="text-primary underline-offset-4 hover:underline">
+            <Link href="/builder" className="text-foreground underline-offset-4 hover:underline">
               publish it in the builder
             </Link>{" "}
             so visitors see your real page.
